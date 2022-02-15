@@ -11,9 +11,9 @@ const app = createApp({
       products: [],
       isNew: false,
       tempProduct: {
-        imagesUrl:[],
+        imagesUrl: [],
       },
-    }
+    };
   },
   methods: {
     // 登入驗證
@@ -48,18 +48,22 @@ const app = createApp({
     openModal(status, item) {
       if (status === "new") {
         this.tempProduct = {
-          imagesUrl:[],
+          imagesUrl: [],
         };
         this.isNew = true;
         ProductModal.show();
         console.log(this.isNew);
-      }else if(status === "edit"){
-        this.tempProduct = {...item};
+      } else if (status === "edit") {
+        this.tempProduct = JSON.parse(JSON.stringify(item)); //改為深拷貝
+        if (!this.tempProduct.imagesUrl) {
+          // 如果 this.tempProduct.imagesUrl 不存在
+          this.tempProduct.imagesUrl = [];
+        }
         this.isNew = false;
         ProductModal.show();
-        console.log(this.tempProduct);
-      }else if(status === "delete"){
-        this.tempProduct = {...item};
+        console.log(this.tempProduct.imagesUrl);
+      } else if (status === "delete") {
+        this.tempProduct = { ...item };
         delProductModal.show();
         console.log(this.tempProduct);
       }
@@ -70,35 +74,36 @@ const app = createApp({
       let url = `${apiUrl}/api/${apiPath}/admin/product`;
       let http = "post";
 
-      if(!this.isNew){
+      if (!this.isNew) {
         url = `${apiUrl}/api/${apiPath}/admin/product/${this.tempProduct.id}`;
         http = "put";
       }
-      axios[http](url,{data:this.tempProduct})
-      .then((res)=>{
-        alert(res.data.message);
-        ProductModal.hide();
-        this.getData();
-      })
-      .catch((err)=>{
-        alert(err.data.message);
-      });
+      axios[http](url, { data: this.tempProduct })
+        .then((res) => {
+          alert(res.data.message);
+          ProductModal.hide();
+          this.getData();
+        })
+        .catch((err) => {
+          alert(err.data.message);
+        });
     },
 
     // 刪除產品
     delProduct() {
       const url = `${apiUrl}/api/${apiPath}/admin/product/${this.tempProduct.id}`;
 
-      axios.delete(url)
-      .then((res)=>{
-        alert(res.data.message);
-        delProductModal.hide();
-        this.getData();
-      })
-      .catch((err)=>{
-        alert(err.data.message);
-      });
-    }
+      axios
+        .delete(url)
+        .then((res) => {
+          alert(res.data.message);
+          delProductModal.hide();
+          this.getData();
+        })
+        .catch((err) => {
+          alert(err.data.message);
+        });
+    },
   },
   mounted() {
     // 將token 存到 Cookie
